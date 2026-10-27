@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Today, {{ today }}</h1>
+{% if total == 0 %}
+  <div class="panel">No students yet. <a href="{{ url_for('students') }}">Add your first student</a> to start tracking.</div>
+{% else %}
+<div class="tally">
+  <div class="p"><b>{{ counts.Present }}</b>Present</div>
+  <div class="l"><b>{{ counts.Late }}</b>Late</div>
+  <div class="a"><b>{{ counts.Absent }}</b>Absent</div>
+  <div><b>{{ unmarked }}</b>Not marked</div>
+</div>
+{% if unmarked %}<p><a href="{{ url_for('mark') }}">Mark the remaining {{ unmarked }} student{{ '' if unmarked == 1 else 's' }}</a></p>{% endif %}
+{% endif %}
+<h2>Below 75% attendance</h2>
+{% if at_risk %}
+<div class="scroll"><table>
+  <tr><th>Roll no.</th><th>Name</th><th>Attendance</th></tr>
+  {% for s in at_risk %}<tr><td>{{ s.roll_no }}</td><td>{{ s.name }}</td><td class="pct low">{{ s.pct }}%</td></tr>{% endfor %}
+</table></div>
+{% else %}<p class="muted">Nobody is below 75%.</p>{% endif %}
+{% endblock %}

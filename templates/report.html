@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Report · Attendance Tracker{% endblock %}
+{% block content %}
+<h1>Attendance report</h1>
+{% if days %}
+<p class="muted">Last {{ days|length }} marked days. P = present, L = late, A = absent.</p>
+<div class="scroll"><table>
+  <tr><th>Student</th>{% for d in days %}<th class="cell none">{{ d[5:] }}</th>{% endfor %}<th>Overall</th></tr>
+  {% for g in grid %}
+  <tr><td>{{ g.student.name }} <span class="muted">{{ g.student.roll_no }}</span></td>
+    {% for c in g.cells %}<td class="cell {{ c or 'none' }}">{{ c[0] if c else '–' }}</td>{% endfor %}
+    <td class="pct {{ 'low' if g.has_data and g.pct < 75 }}">{{ g.pct }}%</td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<p class="muted">No attendance has been saved yet. <a href="{{ url_for('mark') }}">Mark today's attendance</a> to see the report.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Mark attendance · Attendance Tracker{% endblock %}
+{% block content %}
+<h1>Mark attendance</h1>
+<form class="panel inline" method="get">
+  <label>Date<input type="date" name="day" value="{{ day }}"></label>
+  <button type="submit">Load date</button>
+</form>
+{% if rows %}
+<form method="post">
+  <input type="hidden" name="day" value="{{ day }}">
+  <div class="scroll"><table>
+    <tr><th>Roll no.</th><th>Name</th><th>Status</th></tr>
+    {% for r in rows %}
+    <tr><td>{{ r.roll_no }}<input type="hidden" name="sid" value="{{ r.id }}"></td><td>{{ r.name }}</td>
+      <td><div class="seg">
+        {% for s in statuses %}
+        <label><input type="radio" name="status_{{ r.id }}" value="{{ s }}"
+          {% if (r.status or 'Present') == s %}checked{% endif %}> {{ s }}</label>
+        {% endfor %}
+      </div></td></tr>
+    {% endfor %}
+  </table></div>
+  <p><button type="submit">Save attendance for {{ day }}</button></p>
+</form>
+{% else %}<p class="muted">No students to mark. <a href="{{ url_for('students') }}">Add students</a> first.</p>{% endif %}
+{% endblock %}

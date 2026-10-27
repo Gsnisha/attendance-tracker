@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: attendance-tracker
+  labels:
+    app: attendance-tracker
+spec:
+  replicas: 1            # SQLite on a ReadWriteOnce volume: keep a single replica
+  strategy:
+    type: Recreate       # old pod must release the volume before the new one starts
+  selector:
+    matchLabels:
+      app: attendance-tracker
+  template:
+    metadata:
+      labels:
+        app: attendance-tracker
+    spec:
+      containers:
+        - name: web
+          image: DOCKERHUB_USER/attendance-tracker:latest   # Jenkins replaces this tag
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: SECRET_KEY
+              value: "change-me-in-a-real-secret"
+          readinessProbe:
+            httpGet: { path: /health, port: 5000 }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 5000 }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 300m, memory: 192Mi }
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: attendance-data
